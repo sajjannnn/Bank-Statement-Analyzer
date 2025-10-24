@@ -44,26 +44,63 @@ sortEle.innerHTML += `${element}  : ${Transaction[element]}  || `
 }
 sortByDate.appendChild(sortEle);
 })
-const headerSummarize = ["AccountHolder", "TotalCredit", "TotalDebit", "LargestTransaction","SalaryTransactions"];
-class summarize{
-    constructor(AccountHolder, TotalCredit, TotalDebit, LargestTransaction,SalaryTransactions){
-        this[headerSummarize[0]] = AccountHolder,
-        this[headerSummarize[1]] = TotalCredit,
-        this[headerSummarize[2]] = TotalDebit,
-        this[headerSummarize[3]] = LargestTransaction,
-        this[headerSummarize[4]] = SalaryTransactions
-    }
-}
+
+
+
+
+
 //function to map and add data in the analyzer data 
+const knowCustomer = new Map()
+sortedArr.forEach(({ AccountHolder, Type, Amount, TransactionID, Remarks }) => {
+  // if account holder not added yet, initialize their record
+  if (!knowCustomer.has(AccountHolder)) {
+    knowCustomer.set(AccountHolder, {
+      AccountHolder ,
+      TotalCredit: 0,
+      TotalDebit: 0,
+      LargestTransaction: 0,
+      SalaryTransactions: []
+    });
+  }
 
+  // get current person's summary object
+  const person = knowCustomer.get(AccountHolder);
+  const amt = Number(Amount);
 
+  // add up totals
+  if (person.Type === "Credit") {
+    person.TotalCredit += amt;
+  } else {
+    person.TotalDebit += amt;
+  }
 
-sortedArr.forEach(function(Transaction){
-for (let index = 0; index < headerSummarize.length; index++) {
-    const element = headerSummarize[index];
+  // update largest transaction
+  if (amt > person.LargestTransaction) {
+    person.LargestTransaction = amt;
+  }
+
+  // add salary transaction IDs
+  if (Remarks.includes("Salary")) {
+    person.SalaryTransactions.push(TransactionID);
+  }
+});
+// convert map to array
+const arR = ["AccountHolder", "TotalCredit", "TotalDebit", "LargestTransaction", "SalaryTransactions"]
+
+const summary = Array.from(knowCustomer.values());
+
+const analyze = document.getElementById("analyze");
+summary.forEach(function(Transaction){
+const sortEle = document.createElement("li");
+for (let index = 0; index < 5; index++) {
+    const element = arR[index];
+sortEle.innerHTML += `${element}  : ${Transaction[element]}  || `    
 }
+analyze.appendChild(sortEle);
 })
 
+
+console.log(summary);
 
 }
 getData();
