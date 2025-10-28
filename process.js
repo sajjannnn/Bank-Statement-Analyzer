@@ -1,26 +1,27 @@
-let arrLine = [];
+let sortedArr = [];
+let header = [];
+let summary = [];
+let csvContent = ""
 async function getData(){
     const response = await fetch("https://gist.githubusercontent.com/yash2324/60db76164a7bf5e8e6426c89bd84f265/raw/4f0728dd61f577bbc65ce2c3c6c8466429a77c3d/fe02_bank.csv")
     const table = await response.text();
+    let arrLine = [];
+
     arrLine = table.split('\n');
-    // console.log(arrLine[0]);
-    // arrLine[0]
 
 
-const header = arrLine[0].split(',');
+header = arrLine[0].split(',');
+
 class bankData{
 
     constructor(...element){
-        // this.header = [];
         for (let index = 0; index < header.length; index++) {
             this[header[index]] = element[index];            
         }
     }
-
     //methods 
 }
 
-const sortedArr = [];
 for (let index = 1; index < arrLine.length; index++) {
     const element = arrLine[index].split(',');
     // console.log(element)
@@ -33,17 +34,7 @@ for (let index = 1; index < arrLine.length; index++) {
 sortedArr.sort(function(a,b){
     return a.Date-b.Date;
 })
-console.log(sortedArr);
-
-const sortByDate = document.getElementById("listByDate");
-sortedArr.forEach(function(Transaction){
-const sortEle = document.createElement("li");
-for (let index = 0; index < header.length; index++) {
-    const element = header[index];
-sortEle.innerHTML += `${element}  : ${Transaction[element]}  || `    
-}
-sortByDate.appendChild(sortEle);
-})
+// console.log(sortedArr);
 
 
 
@@ -68,7 +59,7 @@ sortedArr.forEach(({ AccountHolder, Type, Amount, TransactionID, Remarks }) => {
   const amt = Number(Amount);
 
   // add up totals
-  if (person.Type === "Credit") {
+  if (Type === 'Credit') {
     person.TotalCredit += amt;
   } else {
     person.TotalDebit += amt;
@@ -85,23 +76,21 @@ sortedArr.forEach(({ AccountHolder, Type, Amount, TransactionID, Remarks }) => {
   }
 });
 // convert map to array
-const arR = ["AccountHolder", "TotalCredit", "TotalDebit", "LargestTransaction", "SalaryTransactions"]
+summary = Array.from(knowCustomer.values());
 
-const summary = Array.from(knowCustomer.values());
 
-const analyze = document.getElementById("analyze");
-summary.forEach(function(Transaction){
-const sortEle = document.createElement("li");
-for (let index = 0; index < 5; index++) {
-    const element = arR[index];
-sortEle.innerHTML += `${element}  : ${Transaction[element]}  || `    
+///converted to csv
+function arrayToCSV(arr) {
+  const headers = Object.keys(arr[0]).join(",");
+  const rows = arr.map(obj => Object.values(obj).join(","));
+  return [headers, ...rows].join("\n");
 }
-analyze.appendChild(sortEle);
-})
 
-
-console.log(summary);
-
+csvContent = arrayToCSV(summary);
+// console.log(csvContent);
 }
-getData();
+// export const ready = getData();
+// export {csvContent}
+await getData();
+export {sortedArr,header,summary,csvContent};
 
